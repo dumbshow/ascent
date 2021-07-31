@@ -123,7 +123,7 @@ class Stuffie(object):
     def parse(self):
         """Extract assertions in the sentence given to this Stuffie object through initialization."""
 
-        verbs = [token for token in self.sentence if token.pos == symbols.VERB]
+        verbs = [token for token in self.sentence if token.pos in (symbols.VERB, symbols.AUX)]
 
         # verb predicates
         for verb in verbs:
@@ -474,7 +474,7 @@ def filter_assertion_list(assertion_list: List[Assertion]) -> List[Assertion]:
         if 0 < subject.i < len(subject.doc) - 1:
             doc = subject.doc
             i = subject.i
-            if doc[(i - 1):(i + 2)].lower_ == 'in order to':
+            if doc[(i - 1):(i + 2)].text.lower() == 'in order to':
                 to_be_removed.add(ind)
 
     return [assertion_list[ind] for ind, _ in enumerate(assertion_list) if ind not in to_be_removed]

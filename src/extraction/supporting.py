@@ -142,7 +142,7 @@ def find_long_phrase(head_word: Token, prep_in: Set = None, prep_not_in: Set = N
     # special phrase matcher
     special_phrase_matcher = Matcher(head_word.vocab)
     for key, patterns in SPECIAL_PHRASE_PATTERNS.items():
-        special_phrase_matcher.add(key, None, patterns)
+        special_phrase_matcher.add(key, [patterns])
 
     matches = special_phrase_matcher(head_word.doc)
     for _, start, end in matches:

@@ -74,6 +74,8 @@ class Assertion(object):
 
     def __str__(self):
         return self.to_json_dict()
+    def __repr__(self):
+        return self.to_json_dict()
 
     def to_json_dict(self) -> str:
         return json.dumps(self.to_dict(), indent=2)
@@ -112,7 +114,7 @@ class Assertion(object):
                 continue
 
             new_full_connector = facet.connector.doc[facet.connector.i: facet.connector.i + 3]
-            if new_full_connector.lower_ != "in order to":
+            if new_full_connector.text.lower() != "in order to":
                 continue
 
             order = facet.statement_head
