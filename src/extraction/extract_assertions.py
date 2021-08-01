@@ -36,9 +36,10 @@ def extract_general_and_subgroup_assertions(assertion_list: List[Assertion],
 
     # check each assertion candidate
     for assertion in assertion_list:
+
         # pre-checking phase
-        if not pre_check_assertion(assertion):
-            continue
+        #if not pre_check_assertion(assertion):
+        #    continue
 
         # ignore irrelevant subject
         if not is_relevant_subject(assertion.full_subj, subject_head_noun):

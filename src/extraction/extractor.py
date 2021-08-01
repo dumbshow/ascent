@@ -32,6 +32,44 @@ SENTENCES_KEY = "sentences"
 
 logger = logging.getLogger(__name__)
 
+def get_cleaned_attributes_mine(concept: Synset,spacy_nlp: Language, line_list: List[str], line_doc_id_list: List[str], alias: List[str] = None,
+               output_file: str = None):
+
+    assert(len(line_list)==len(line_doc_id_list)), ValueError('Doc list should be a list of strings equal to line list identifying source documents')
+    # OpenIE
+    logger.info(f"Subject {concept.name()} - Running SpaCy, NeuralCoref and StuffIE...")
+    concept_name = get_concept_name(concept)
+    if alias is None:
+        alias = []
+    subject_list = [concept_name]
+    subject_list.extend(alias)
+    doc_list, assertion_list, num_sentences = run_extraction(line_list, line_doc_id_list, spacy_nlp, concept_name)
+
+    extractions = []
+    for subject in subject_list:
+        extractions.append(
+            extract(subject=subject, target_subject=concept_name, doc_list=doc_list, assertion_list=assertion_list,
+                    spacy_nlp=spacy_nlp))
+
+    subgroup_list, subpart_list, general_assertions, subgroup_assertions, subpart_assertions = merge(
+        target_subject=concept_name, extractions=extractions, alias=alias)
+
+    json_obj = {
+        PROMINENT_LEMMA_KEY: get_prominent_lemma(concept, general_assertions),
+        WN_SYNSET_KEY: {
+            "synset_id": concept.name(),
+            "offset_id": get_wn_id(concept),
+        },
+        LEMMAS_KEY: subject_list,
+        SUBGROUPS_KEY: [subgroup.to_dict() for subgroup in subgroup_list],
+        ASPECTS_KEY: [subpart.to_dict() for subpart in subpart_list],
+        GENERAL_ASSERTION_KEY: [assertion.to_dict(simplifies_object=True) for assertion in general_assertions],
+        SUBGROUP_ASSERTION_KEY: [assertion.to_dict(simplifies_object=True) for assertion in subgroup_assertions],
+        ASPECT_ASSERTION_KEY: [assertion.to_dict(simplifies_object=True) for assertion in subpart_assertions],
+        SENTENCES_KEY: get_sentences([a for a in (general_assertions + subgroup_assertions + subpart_assertions)])
+    }
+    return json_obj
+
 
 def single_run(concept: Synset, spacy_nlp: Language, doc_threshold: float, alias: List[str] = None,
                output_file: str = None):
