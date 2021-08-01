@@ -7,6 +7,7 @@ from spacy import symbols
 from spacy.matcher import Matcher
 from spacy.tokens.span import Span
 from spacy.tokens.token import Token
+import re
 
 from helper.constants import PREPOSITIONS, NUMERAL_ADJECTIVES, SPECIAL_PHRASE_PATTERNS
 
@@ -436,3 +437,33 @@ def finalize_object(obj: Span, remove_all_punctuation: bool = False, return_toke
         return find_lemma_of_noun(tokens[0])
 
     return ''.join([t.text_with_ws for t in tokens]).strip().lower()
+
+
+
+
+
+### begin my functions
+
+with open('/home/ubuntu/in/English_uncountable_nouns_words_wiktionary.txt') as f:
+    uncountable = {ii.strip() for ii in f}
+
+def clean_wordnet_definition(synset):
+    main_lemma = synset.lemmas()[0].name()
+    pp = synset.definition()
+    pp = re.sub('; -.*', '', pp)
+
+    # gather and remnove parentheticals
+    # not sure how to do this in a single step
+    parens = [ii.strip(')(') for ii in re.findall('\([^)]+\)', pp)]
+    pp = re.sub('\([^)]+\)', '', pp)
+
+    parts = [ii for ii in pp.split(';') if ii.strip()]
+    out = []
+    for ii in parts + parens:
+        if synset.pos=='n' and not main_lemma in uncountable:
+            article = ('An' if main_lemma[0].lower() in 'aeiou' else 'A')
+            out.append(f'{article} {main_lemma} is' + ii)
+        else:
+            out.append(f'{main_lemma} is ' + ii)
+
+    return out
