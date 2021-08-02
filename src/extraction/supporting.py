@@ -460,10 +460,13 @@ def clean_wordnet_definition(synset):
     parts = [ii for ii in pp.split(';') if ii.strip()]
     out = []
     for ii in parts + parens:
-        if synset.pos=='n' and not main_lemma in uncountable:
+        if synset.pos=='n':
             article = ('An' if main_lemma[0].lower() in 'aeiou' else 'A')
-            out.append(f'{article} {main_lemma} is' + ii)
+            if not main_lemma in uncountable:
+                out.append(f'{article} {main_lemma} is' + ii)
+            else:
+                out.append(f'{main_lemma} is ' + ii)
         else:
-            out.append(f'{main_lemma} is ' + ii)
+            out.append(f'{main_lemma} means ' + ii)
 
     return out

@@ -44,8 +44,8 @@ def run_extraction(lines: List[str], doc_ids: List[int], spacy_nlp: Language, su
     subject_less_idx: Set[int] = set()
 
     for line, doc_id in zip(lines, doc_ids):
-        if len(line.split()) > 1000:  # ignore huge paragraphs
-            continue
+        #if len(line.split()) > 1000:  # ignore huge paragraphs
+        #    continue
 
         doc: Doc = spacy_nlp(line.strip())
         doc.user_data["doc_id"] = doc_id
@@ -59,14 +59,6 @@ def run_extraction(lines: List[str], doc_ids: List[int], spacy_nlp: Language, su
             cnt_sent += 1
             extracted += len(s.assertions)
 
-        # [HACK] fix single-sentence paragraph with no subjects
-        # TODO maybe more proper filters
-        if extracted == 0 and len(list(doc.sents)) == 1 and len(doc) >= 5:
-            if doc[0].pos != symbols.VERB:
-                continue
-            if doc[0].lower_ in {"view", "click", "see", "discover", "find", "explore", "search"}:
-                continue
-            subject_less_idx.add(len(doc_list) - 1)
 
         # stop early to avoid time-exploding
         if cnt_sent > 50000:
@@ -122,7 +114,6 @@ class Stuffie(object):
 
     def parse(self):
         """Extract assertions in the sentence given to this Stuffie object through initialization."""
-
         verbs = [token for token in self.sentence if token.pos in (symbols.VERB, symbols.AUX)]
 
         # verb predicates

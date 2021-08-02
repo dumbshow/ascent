@@ -67,8 +67,8 @@ def extract_general_and_subgroup_assertions(assertion_list: List[Assertion],
             subgroup_assertions.append(simplified_assertion)
 
     # sort the lists
-    general_assertions = sorted(filter_assertion_list(general_assertions), key=lambda x: (x.subj, x.pred, str(x.obj)))
-    subgroup_assertions = sorted(filter_assertion_list(subgroup_assertions), key=lambda x: (x.subj, x.pred, str(x.obj)))
+    # general_assertions = sorted(filter_assertion_list(general_assertions), key=lambda x: (x.subj, x.pred, str(x.obj)))
+    # subgroup_assertions = sorted(filter_assertion_list(subgroup_assertions), key=lambda x: (x.subj, x.pred, str(x.obj)))
 
     return general_assertions, subgroup_assertions
 
@@ -265,8 +265,8 @@ def is_relevant_subject(span: Span, subject_head_noun) -> bool:
 
 def is_directly_relevant_subject(span: Span, subject_head_noun) -> bool:
     """Check if a span directly contains the target subject."""
-
-    return span.root.lemma_.lower() == subject_head_noun
+    # changed this to be a little more flexible, some issues with passing in wordnet definitions
+    return  (span.root.lower_ == subject_head_noun) or (span.root.lemma_.lower() == subject_head_noun)
 
 
 def is_coref_relevant_subject(span: Span, subject_head_noun: str) -> bool:
